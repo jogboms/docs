@@ -1,7 +1,7 @@
 ---
 title: "Actions"
 parent: "published-app-services"
-tags: ["studio pro"]
+tags: ["studio pro", "actions"]
 ---
 
 ## 1 Introduction
