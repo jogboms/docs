@@ -28,109 +28,31 @@ Please note that the Make It Native app has already the registered schema `makei
 
 Before starting this how-to, make sure you have completed the following prerequisites:
 
+* Installed at least version `8.15.0` of Studio Pro
 * Complete the [Prerequisites](/howto/mobile/deploying-native-app#prerequisites) section of *How to Deploy Your First Mendix Native Mobile App*
-* Install git [command line](https://git-scm.com/downloads) tool
 * Make sure your [Native Mobile Resources](/appstore/modules/native-mobile-resources) module is up to date
 
 ## 3. Setting up App Deep Linking {#set-up}
 
 If you do not already have a native template for your app, you can create one:
 
-1. Create a shell app with Native Builder using the `prepare` command as shown in [How to Deploy Your First Mendix Native Mobile App](/howto/mobile/deploying-native-app). When you do this, replace the parameters in this example command with your own project's parameters, local paths, and tokens:
+1. Set up a native template with the **Native Mobile App Builder**. This can be launched from the Project menu as shown in [How to Deploy Your First Mendix Native Mobile App](/howto/mobile/deploying-native-app). Walk through the wizard and configure the project's details and tokens.
 
-    ``` shell
-    native-builder.exe prepare --project-name "Native Deep Link" --app-name "Native Deep Link" --java-home "C:\Program Files\AdoptOpenJDK\jdk-11.0.3.7-hotspot" --mxbuild-path "C:\Program Files\Mendix\8.6.0.715\modeler\mxbuild.exe" --project-path "C:\mendix-projects\NativeDeepLink\NativeDeepLink.mpr" --github-access-token "c3f322c471623" --appcenter-api-token "2d5b570693d34"  --app-identifier "com.mendix.native.deeplink" --runtime-url "https://nativedeeplink-sandbox.mxapps.io/" --mendix-version "8.6.0"
-    ```
+    ![launch native mobile builder](attachments/native-deep-link/launch-native-mobile-app-builder.png)
+
+2. Once done with the wizard, next step is to enable the deep linking capability.
+
+    Select the **Capabilities** menu item.
+    ![capability menu option](attachments/native-deep-link/capability-menu-option.png)
     
-1. Open your command line interface (CLI) of choice and change directory to the folder where you want to edit the build template:
-
-    ```shell
-    cd c:/github
-    ```
+    Enter the `schema` name without the appending `://`.
+    ![deep link input field](attachments/native-deep-link/deeplink-input-field.png)
     
-1. Use git to clone your Native Builder template from GitHub: 
+3. Click on the **Save** button. Navigate to the build page and then, **Build**.
 
-    ```shell
-    git clone https://github.com/your-account/native-deeplink-app
-    ```
-
-### 3.1 For Android Apps {#for-android}
-
-The manifest file registers the schema and host on your Android device that will be associated with your Mendix app. Put simply, the manifest file controls the permissions, `activity` code, and more. So to enable deep linking, you will need to configure your *AndroidManifest.xml* file:
-
-1. Open the folder that you cloned your template into: `c:/github/native-deeplink-app`.
-1. Open *android/app/src/main/AndroidManifest.xml*.
-1. In `activity`, add the attribute `android:launchMode="singleTask"`. For more information on Launch Mode, see this [Android documentation](https://developer.android.com/guide/topics/manifest/activity-element#lmode).
-1. Add an `intent-filter` in the `activity`:
-
-    ```xml
-    <intent-filter android:label="@string/app_name">
-        <action android:name="android.intent.action.VIEW" />
-        <category android:name="android.intent.category.DEFAULT" />
-        <category android:name="android.intent.category.BROWSABLE" />
-        <data android:scheme="app" android:host="myapp" />
-    </intent-filter>
-    ```
-    
-    For more information on linking in Android, see this [Android documentation](https://developer.android.com/training/app-links/deep-linking#adding-filters).
-
-### 3.2 For iOS Apps
-
-The *info.plist* file registers the schema and host so that they will be associated with your app in iOS. This *plist* file controls permissions, app information, and more. So to enable deep linking, you will need to configure your *info.plist* file:
-
-1. Open the folder that you cloned your template into: `c:/github/native-deeplink-app`.
-1. In Xcode (available on Apple Mac only) open *ios/NativeTemplate.xcworkspace*.
-1. Open *ios/NativeTemplate/Info.plist*
-1.  Add `URL types`, then add `URL Schemes` and `URL identifier`:
-
-	![ios info plist](attachments/native-deep-link/ios-info-plist.png)
-   
-	When viewing *Info.plist* as a text file, you would see that a section is added:
-   
-	```xml
-	<key>CFBundleURLTypes</key>
-    <array>
-        <dict>
-            <key>CFBundleURLSchemes</key>
-            <array>
-                <string>app</string>
-            </array>
-            <key>CFBundleURLName</key>
-            <string>myapp</string>
-        </dict>
-    </array>
-	```
-
-1. Open *ios/AppDelegate.m* 
-1. Add this import to the existing imports: `#import "React/RCTLinkingManager.h"`.
-1. Before `@end`, add a new method:
-
-	```objc
-		- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation {
-        return [RCTLinkingManager application:application openURL:url sourceApplication:sourceApplication annotation:annotation];
-    }
-	```
-   
-	This method will register the opened URL so it can be used in the **Native Deep Link** nanoflow actions. 
-
-### 3.3 Rebuilding Your Native Mobile App
-
-When running locally from source you have to launch your app again:
-
-1. With your CLI, open the folder that you cloned your template into: `cd c:/github/native-deeplink-app`.
-1. Add, commit, and push all changes from steps above:
-
-    ```shell
-    git add .
-    git commit -m "Add deeplink handling"
-    git push
-    ```
-
-1. Now rebuild and install your native mobile app to add your new capabilities:
-
-    ``` shell
-    native-builder.exe build --project-name "Native Deep Link" --app-version "1.0.0" --build-number 1
-    ```
+{{% alert type="info" %}}
+When running locally from source, on iOS you have to run `pod install` once more
+{{% /alert %}}
 
 ## 4 Using Deep Linking in Your App {#using-deep-linking}
 
